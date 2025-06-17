@@ -9,6 +9,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* Cor de fundo principal inspirada no site IBR */
+            background-color: #f0f4f8; 
         }
         .chat-container.accessible-font {
             font-size: 1.15rem; /* Fonte maior para acessibilidade */
@@ -32,6 +34,11 @@
             border-radius: 1rem;
             z-index: 100;
         }
+        /* Definindo as cores primárias do IBR como variáveis para fácil customização */
+        :root {
+            --ibr-blue: #4381cb; /* Azul escuro do logo */
+            --ibr-green: #00a99d; /* Verde dos detalhes */
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -40,10 +47,10 @@
         <!-- Indicador de "Ouvindo" -->
         <div id="listening-indicator">Ouvindo...</div>
         
-        <!-- Cabeçalho -->
-        <div class="bg-teal-600 text-white p-4 rounded-t-2xl shadow-md flex justify-between items-center">
+        <!-- Cabeçalho - Usando o azul do IBR -->
+        <div class="bg-sky-800 text-white p-4 rounded-t-2xl shadow-md flex justify-between items-center">
             <div class="flex items-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/1626/1626629.png" alt="Avatar da Dona Irba" class="w-12 h-12 rounded-full mr-4 border-2 border-white/50">
+                <img src="https://cdn-icons-png.flaticon.com/512/1626/1626629.png" onerror="this.onerror=null;this.src='https://placehold.co/48x48/ffffff/003d73?text=IBR';" alt="Avatar da Dona Irba" class="w-12 h-12 rounded-full mr-4 border-2 border-white/50">
                 <div>
                     <h1 class="text-xl font-bold">Dona Irba</h1>
                     <p class="text-sm opacity-90">Assistente Virtual do Hospital IBR</p>
@@ -51,7 +58,8 @@
             </div>
             <div class="flex items-center space-x-2">
                 <span class="text-xs">Online</span>
-                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                <!-- Usando o verde do IBR para o status online -->
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
         </div>
 
@@ -68,13 +76,15 @@
         <!-- Input do Usuário -->
         <div class="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
             <div class="flex items-center space-x-2">
-                <input type="text" id="user-input" class="flex-1 w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Digite sua mensagem...">
-                <button id="mic-btn" class="bg-gray-200 text-gray-600 rounded-full p-3 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+                <!-- Anel de foco azul -->
+                <input type="text" id="user-input" class="flex-1 w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-600" placeholder="Digite sua mensagem...">
+                <button id="mic-btn" class="bg-gray-200 text-gray-600 rounded-full p-3 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17.3 11c-.28 0-.5.22-.5.5v2.5c0 2.48-2.02 4.5-4.5 4.5S7.8 16.48 7.8 14v-2.5c0-.28-.22-.5-.5-.5s-.5.22-.5.5V14c0 3.03 2.47 5.5 5.5 5.5s5.5-2.47 5.5-5.5v-2.5c0-.28-.22-.5-.5-.5z"/>
                     </svg>
                 </button>
-                <button id="send-btn" class="bg-teal-600 text-white rounded-full p-3 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+                <!-- Botão de envio azul -->
+                <button id="send-btn" class="bg-sky-800 text-white rounded-full p-3 hover:bg-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
@@ -110,7 +120,7 @@
         } else {
             // Se não encontrar, pega a primeira voz feminina disponível em português
             selectedVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('female')) ||
-                          voices.find(voice => voice.lang === 'pt-BR'); // Ou qualquer voz em português
+                              voices.find(voice => voice.lang === 'pt-BR'); // Ou qualquer voz em português
         }
     }
 
@@ -186,14 +196,16 @@
             bubble.textContent = text;
             
             const speakerBtn = document.createElement('button');
-            speakerBtn.className = 'ml-2 text-gray-400 hover:text-teal-600 p-1 rounded-full shrink-0';
+            // Ícone do alto-falante com hover na cor azul do IBR
+            speakerBtn.className = 'ml-2 text-gray-400 hover:text-sky-700 p-1 rounded-full shrink-0';
             speakerBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.383-.217zM14.5 11a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" /></svg>`;
             speakerBtn.onclick = () => speak(text);
             
             messageElement.appendChild(bubble);
             messageElement.appendChild(speakerBtn);
         } else { // sender === 'user'
-            messageElement.className = 'p-3 rounded-xl chat-bubble w-fit bg-teal-600 text-white self-end';
+            // Balão do usuário com a cor azul do IBR
+            messageElement.className = 'p-3 rounded-xl chat-bubble w-fit bg-sky-800 text-white self-end';
             messageElement.textContent = text;
         }
         
@@ -208,7 +220,8 @@
         container.className = 'flex flex-wrap gap-2 justify-center';
         options.forEach(optionText => {
             const button = document.createElement('button');
-            button.className = 'quick-reply-btn bg-teal-100 text-teal-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-teal-200';
+            // Botões de resposta rápida com o verde do IBR
+            button.className = 'quick-reply-btn bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-200';
             button.textContent = optionText;
             button.onclick = () => { handleUserInput(optionText); optionsArea.innerHTML = ''; };
             container.appendChild(button);
@@ -342,7 +355,7 @@
                         sendBotMessage(summary);
                         setTimeout(() => {
                             sendBotMessage('Nossa equipe confirmará o horário exato com você em breve. Seus dados foram salvos. Muito obrigada!');
-                            userInput.placeholder = 'Digite sua mensagem...';
+                            userInput.placeholder = 'Atendimento finalizado.';
                             conversationState = 'initial';
                             setTimeout(showInitialOptions, 2000);
                         }, 1500);
