@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protótipo de Chatbot - Dona Irba</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chat-container.accessible-font {
+            font-size: 1.15rem; /* Fonte maior para acessibilidade */
+        }
+        .chat-bubble {
+            max-width: 80%;
+            transition: all 0.3s ease;
+        }
+        .quick-reply-btn {
+            transition: background-color 0.2s ease;
+        }
+        #listening-indicator {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 1rem 1.5rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 1rem;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl flex flex-col h-[90vh] relative">
+        <!-- Indicador de "Ouvindo" -->
+        <div id="listening-indicator">Ouvindo...</div>
+        
+        <!-- Cabeçalho -->
+        <div class="bg-teal-600 text-white p-4 rounded-t-2xl shadow-md flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="https://placehold.co/48x48/ffffff/14b8a6?text=DI" alt="Avatar da Dona Irba" class="w-12 h-12 rounded-full mr-4 border-2 border-white/50">
+                <div>
+                    <h1 class="text-xl font-bold">Dona Irba</h1>
+                    <p class="text-sm opacity-90">Assistente Virtual do Hospital IBR</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs">Online</span>
+                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+            </div>
+        </div>
+
+        <!-- Corpo do Chat -->
+        <div id="chat-body" class="flex-1 p-6 space-y-4 overflow-y-auto chat-container">
+            <!-- As mensagens do chat serão inseridas aqui -->
+        </div>
+        
+        <!-- Área de Opções Rápidas -->
+        <div id="options-area" class="p-4 border-t border-gray-200">
+            <!-- Opções iniciais ou de acessibilidade aparecerão aqui -->
+        </div>
+
+        <!-- Input do Usuário -->
+        <div class="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+            <div class="flex items-center space-x-2">
+                <input type="text" id="user-input" class="flex-1 w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Digite sua mensagem...">
+                <button id="mic-btn" class="bg-gray-200 text-gray-600 rounded-full p-3 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17.3 11c-.28 0-.5.22-.5.5v2.5c0 2.48-2.02 4.5-4.5 4.5S7.8 16.48 7.8 14v-2.5c0-.28-.22-.5-.5-.5s-.5.22-.5.5V14c0 3.03 2.47 5.5 5.5 5.5s5.5-2.47 5.5-5.5v-2.5c0-.28-.22-.5-.5-.5z"/>
+                    </svg>
+                </button>
+                <button id="send-btn" class="bg-teal-600 text-white rounded-full p-3 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- ELEMENTOS DO DOM ---
+    const chatBody = document.getElementById('chat-body');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const optionsArea = document.getElementById('options-area');
+    const listeningIndicator = document.getElementById('listening-indicator');
+
+    // --- CONFIGURAÇÕES GLOBAIS ---
+    let conversationState = 'initial';
+    let patientData = {};
+    let isAudioEnabled = true; // Áudio ativado por padrão
+    let selectedVoice = null;
+
+    // --- LÓGICA DE SÍNTESE DE VOZ (LEITOR) ---
+    const synth = window.speechSynthesis;
+    
+    function loadAndSetVoice() {
+        const voices = synth.getVoices();
+        // Tenta encontrar uma voz feminina conhecida em português (ex: Maria da Microsoft)
+        const femaleVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('maria'));
+        if (femaleVoice) {
+            selectedVoice = femaleVoice;
+        } else {
+            // Se não encontrar, pega a primeira voz feminina disponível em português
+            selectedVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('female')) ||
+                          voices.find(voice => voice.lang === 'pt-BR'); // Ou qualquer voz em português
+        }
+    }
+
+    // O evento 'voiceschanged' é disparado quando a lista de vozes do sistema é carregada.
+    // É essencial para garantir que temos acesso a todas as vozes disponíveis.
+    synth.onvoiceschanged = loadAndSetVoice;
+    loadAndSetVoice(); // Chama uma vez para o caso das vozes já estarem carregadas
+
+    function speak(text) {
+        if (!synth) {
+            console.error("API de Síntese de Voz não suportada.");
+            return;
+        }
+        if (synth.speaking) synth.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pt-BR';
+
+        // Se uma voz foi selecionada, aplica ela e ajusta o tom e velocidade
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            utterance.pitch = 0.85; // Tom mais grave (padrão 1)
+            utterance.rate = 0.95; // Velocidade ligeiramente mais lenta (padrão 1)
+        }
+        
+        synth.speak(utterance);
+    }
+
+
+    // --- LÓGICA DE RECONHECIMENTO DE VOZ (MICROFONE) ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.onstart = () => listeningIndicator.style.display = 'block';
+        recognition.onend = () => listeningIndicator.style.display = 'none';
+        recognition.onerror = (event) => console.error("Erro no reconhecimento de voz:", event.error);
+        recognition.onresult = (event) => {
+            userInput.value = event.results[0][0].transcript;
+            setTimeout(() => handleUserInput(), 300);
+        };
+    } else {
+        micBtn.style.display = 'none';
+    }
+    
+    // --- LÓGICA DO CHATBOT ---
+
+    /**
+     * Envia uma mensagem do bot, com opção de leitura em voz alta.
+     * @param {string} text - O texto da mensagem do bot.
+     * @param {boolean} [forceSpeak=false] - Força a fala, ignorando a configuração global.
+     */
+    function sendBotMessage(text, forceSpeak = false) {
+        addMessage(text, 'bot');
+        if (isAudioEnabled || forceSpeak) {
+            speak(text);
+        }
+    }
+
+    /**
+     * Adiciona uma mensagem (balão) na tela do chat.
+     * @param {string} text - O texto da mensagem.
+     * @param {string} sender - 'bot' ou 'user'.
+     */
+    function addMessage(text, sender) {
+        const messageElement = document.createElement('div');
+        
+        if (sender === 'bot') {
+            messageElement.className = 'flex items-center self-start w-full max-w-[85%]';
+            const bubble = document.createElement('div');
+            bubble.className = 'p-3 rounded-xl bg-gray-200 text-gray-800 w-fit';
+            bubble.textContent = text;
+            
+            const speakerBtn = document.createElement('button');
+            speakerBtn.className = 'ml-2 text-gray-400 hover:text-teal-600 p-1 rounded-full shrink-0';
+            speakerBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.383-.217zM14.5 11a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" /></svg>`;
+            speakerBtn.onclick = () => speak(text);
+            
+            messageElement.appendChild(bubble);
+            messageElement.appendChild(speakerBtn);
+        } else { // sender === 'user'
+            messageElement.className = 'p-3 rounded-xl chat-bubble w-fit bg-teal-600 text-white self-end';
+            messageElement.textContent = text;
+        }
+        
+        chatBody.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    /** Adiciona botões de resposta rápida. */
+    function showQuickReplies(options) {
+        optionsArea.innerHTML = '';
+        const container = document.createElement('div');
+        container.className = 'flex flex-wrap gap-2 justify-center';
+        options.forEach(optionText => {
+            const button = document.createElement('button');
+            button.className = 'quick-reply-btn bg-teal-100 text-teal-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-teal-200';
+            button.textContent = optionText;
+            button.onclick = () => { handleUserInput(optionText); optionsArea.innerHTML = ''; };
+            container.appendChild(button);
+        });
+        optionsArea.appendChild(container);
+    }
+
+    /** Processa a entrada do usuário e gera a resposta do bot. */
+    function processBotResponse(input) {
+        const lowerInput = input.toLowerCase();
+        const handleUnknownInput = () => setTimeout(() => { sendBotMessage('Desculpa, não entendi. Pode tentar de outro jeito?'); showInitialOptions(); }, 500);
+        
+        switch(conversationState) {
+            case 'audio_preference':
+                if (lowerInput.includes('desativar')) {
+                    isAudioEnabled = false;
+                    sendBotMessage('Áudio desativado. Como posso te ajudar hoje?');
+                } else {
+                    isAudioEnabled = true;
+                    sendBotMessage('Ótimo! Manterei as respostas em áudio. Como posso te ajudar?');
+                }
+                conversationState = 'initial';
+                setTimeout(showInitialOptions, 1200);
+                break;
+
+            case 'initial':
+                if (lowerInput.includes('remarcar') || lowerInput.includes('marcar') || lowerInput.includes('agendar') || lowerInput.includes('consulta')) {
+                    conversationState = 'start_registration';
+                    setTimeout(() => { sendBotMessage('Claro! Para iniciar o agendamento, por favor, me informe o seu CPF.'); userInput.placeholder = 'Digite apenas os números do CPF'; }, 500);
+                } else if (lowerInput.includes('convênio') || lowerInput.includes('plano')) {
+                    setTimeout(() => { sendBotMessage('Aceitamos: SulAmérica, Bradesco Saúde, Amil e Unimed. Para detalhes sobre a cobertura, o ideal é contatar diretamente o convênio.'); setTimeout(showInitialOptions, 1500); }, 500);
+                } else if (lowerInput.includes('horário') || lowerInput.includes('visita')) {
+                    setTimeout(() => { sendBotMessage('O horário de visitas é das 14h às 18h, todos os dias. É permitida a entrada de um visitante por vez.'); setTimeout(showInitialOptions, 1500); }, 500);
+                } else if (lowerInput.includes('acessibilidade')){
+                     conversationState = 'accessibility_check';
+                     setTimeout(() => { sendBotMessage('Sim, posso adaptar o atendimento. Você prefere a fonte maior neste chat?'); showQuickReplies(['Sim, fonte maior', 'Não, obrigado']); }, 500);
+                } else {
+                    handleUnknownInput();
+                }
+                break;
+            case 'accessibility_check':
+                if(lowerInput.includes('sim')){
+                    document.getElementById('chat-body').classList.add('accessible-font');
+                    setTimeout(() => { sendBotMessage('Pronto! Ajustei a fonte para você. Como mais posso te ajudar?'); }, 500);
+                } else {
+                    setTimeout(() => { sendBotMessage('Entendido. Mantive a fonte padrão. Como posso te ajudar?'); }, 500);
+                }
+                conversationState = 'initial';
+                setTimeout(showInitialOptions, 1200);
+                break;
+            case 'start_registration':
+                patientData.cpf = input;
+                conversationState = 'awaiting_name';
+                setTimeout(() => {
+                    sendBotMessage(`Obrigada! Verificando CPF...`);
+                    setTimeout(() => { sendBotMessage('É seu primeiro acesso. Qual o seu nome completo?'); userInput.placeholder = 'Digite seu nome completo'; }, 1500);
+                }, 500);
+                break;
+            case 'awaiting_name':
+                patientData.fullName = input;
+                conversationState = 'awaiting_social_name';
+                setTimeout(() => { sendBotMessage(`Obrigada, ${input.split(' ')[0]}. Você utiliza nome social?`); showQuickReplies(['Sim', 'Não']); }, 500);
+                break;
+            case 'awaiting_social_name':
+                if (lowerInput === 'sim') {
+                    conversationState = 'getting_social_name';
+                    setTimeout(() => sendBotMessage('Por favor, informe seu nome social.'), 500);
+                } else {
+                    patientData.socialName = 'N/A';
+                    conversationState = 'awaiting_dob';
+                    setTimeout(() => { sendBotMessage('Entendido. Qual a sua data de nascimento?'); userInput.placeholder = 'DD/MM/AAAA'; }, 500);
+                }
+                break;
+            case 'getting_social_name':
+                patientData.socialName = input;
+                conversationState = 'awaiting_dob';
+                setTimeout(() => { sendBotMessage('Registrado! Agora, qual a sua data de nascimento?'); userInput.placeholder = 'DD/MM/AAAA'; }, 500);
+                break;
+            case 'awaiting_dob':
+                patientData.dob = input;
+                conversationState = 'awaiting_email';
+                 setTimeout(() => { sendBotMessage('Qual o seu melhor e-mail para contato?'); userInput.placeholder = 'exemplo@email.com'; }, 500);
+                break;
+            case 'awaiting_email':
+                patientData.email = input;
+                conversationState = 'awaiting_phone';
+                setTimeout(() => { sendBotMessage('Obrigada. E o seu telefone celular com DDD?'); userInput.placeholder = '(XX) XXXXX-XXXX'; }, 500);
+                break;
+            case 'awaiting_phone':
+                patientData.phone = input;
+                conversationState = 'awaiting_appointment_for';
+                setTimeout(() => { sendBotMessage('O agendamento é para você mesmo(a) ou para outra pessoa?'); showQuickReplies(['Para mim', 'Para outra pessoa']); }, 500);
+                break;
+            case 'awaiting_appointment_for':
+                patientData.appointmentFor = input;
+                conversationState = 'awaiting_appointment_type';
+                setTimeout(() => { sendBotMessage('Certo. Seria uma consulta ou um exame?'); showQuickReplies(['Consulta', 'Exame']); }, 500);
+                break;
+            case 'awaiting_appointment_type':
+                patientData.appointmentType = input;
+                conversationState = 'awaiting_insurance';
+                 setTimeout(() => { sendBotMessage(`Entendido, agendamento de ${patientData.appointmentType}. O atendimento será particular ou por convênio?`); showQuickReplies(['Particular', 'Convênio']); }, 500);
+                break;
+            case 'awaiting_insurance':
+                 patientData.insurance = input;
+                 conversationState = 'awaiting_doctor_preference';
+                 setTimeout(() => { sendBotMessage('Você tem preferência por algum médico?'); showQuickReplies(['Sim, tenho preferência', 'Não, pode ser qualquer um']); }, 500);
+                 break;
+            case 'awaiting_doctor_preference':
+                if(lowerInput.includes('sim')){
+                    conversationState = 'getting_doctor_name';
+                    setTimeout(() => sendBotMessage('Qual o nome do(a) médico(a) de sua preferência?'), 500);
+                } else {
+                    patientData.doctorPreference = 'Sem preferência';
+                    conversationState = 'awaiting_date';
+                    setTimeout(() => { sendBotMessage('Ok. Qual a data e período de sua preferência?'); userInput.placeholder = 'Ex: 25/12, pela manhã'; }, 500);
+                }
+                break;
+            case 'getting_doctor_name':
+                patientData.doctorPreference = input;
+                conversationState = 'awaiting_date';
+                setTimeout(() => { sendBotMessage('Anotado! Qual a data e período de sua preferência?'); userInput.placeholder = 'Ex: 25/12, pela manhã'; }, 500);
+                break;
+            case 'awaiting_date':
+                patientData.preferredDate = input;
+                conversationState = 'finished';
+                setTimeout(() => {
+                    sendBotMessage('Perfeito! Seu pré-agendamento foi concluído.');
+                    setTimeout(() => {
+                        const summary = `Resumo: Paciente: ${patientData.fullName} | Tipo: ${patientData.appointmentType} | Convênio: ${patientData.insurance} | Médico: ${patientData.doctorPreference} | Data: ${patientData.preferredDate}`;
+                        sendBotMessage(summary);
+                        setTimeout(() => {
+                            sendBotMessage('Nossa equipe confirmará o horário exato com você em breve. Seus dados foram salvos. Muito obrigada!');
+                            userInput.placeholder = 'Digite sua mensagem...';
+                            conversationState = 'initial';
+                            setTimeout(showInitialOptions, 2000);
+                        }, 1500);
+                    }, 1000);
+                }, 500);
+                break;
+
+            default:
+                handleUnknownInput();
+                break;
+        }
+    }
+
+    /** Manipula a entrada do usuário (texto, voz ou botão). */
+    function handleUserInput(forcedInput) {
+        const text = forcedInput || userInput.value.trim();
+        if (!text) return;
+        addMessage(text, 'user');
+        if (!forcedInput) userInput.value = '';
+        
+        userInput.disabled = true;
+        setTimeout(() => {
+            processBotResponse(text);
+            userInput.disabled = false;
+            userInput.focus();
+        }, 300);
+    }
+    
+    /** Inicia a conversa. */
+    function startConversation() {
+        conversationState = 'audio_preference';
+        setTimeout(() => {
+            // Atrasar a primeira fala para dar tempo de as vozes carregarem.
+            sendBotMessage('Olá! Eu sou a Dona Irba, sua assistente virtual. Para uma melhor acessibilidade, as minhas respostas serão lidas em voz alta.', true);
+            setTimeout(() => {
+                sendBotMessage('Você deseja continuar com as respostas em áudio ou prefere desativar?', true);
+                showQuickReplies(['Continuar com áudio', 'Desativar áudio']);
+            }, 2500);
+        }, 1000);
+    }
+    
+    /** Mostra as opções iniciais do menu principal. */
+    function showInitialOptions() {
+        showQuickReplies(['Marcar Consulta', 'Verificar Convênios', 'Horários de Visita', 'Acessibilidade']);
+    }
+
+    // --- EVENT LISTENERS ---
+    sendBtn.addEventListener('click', () => handleUserInput());
+    userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUserInput(); });
+    micBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
+
+    window.onload = startConversation;
+</script>
+</body>
+</html>
