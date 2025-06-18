@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protótipo de Chatbot - Dona Irba</title>
+    <title>Protótipo de Chatbot - Irba</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -52,7 +52,7 @@
             <div class="flex items-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/1626/1626629.png" onerror="this.onerror=null;this.src='https://placehold.co/48x48/ffffff/003d73?text=IBR';" alt="Avatar da Dona Irba" class="w-12 h-12 rounded-full mr-4 border-2 border-white/50">
                 <div>
-                    <h1 class="text-xl font-bold">Dona Irba</h1>
+                    <h1 class="text-xl font-bold">Irba</h1>
                     <p class="text-sm opacity-90">Assistente Virtual do Hospital IBR</p>
                 </div>
             </div>
@@ -107,55 +107,147 @@
     let patientData = {};
     let isAudioEnabled = true; // Áudio ativado por padrão
     let selectedVoice = null;
+    let fieldToAlter = ''; // Variável para armazenar qual campo está sendo alterado
+
+    // --- TRADUÇÕES (Removida a opção de idioma, mantido apenas pt-BR) ---
+    const translations = {
+        'pt-BR': {
+            'language_prompt': 'Olá! Eu sou a Irba, sua assistente virtual. Para uma melhor acessibilidade, as minhas respostas serão lidas em voz alta.',
+            'audio_preference_prompt': 'Você deseja continuar com as respostas em áudio ou prefere desativar?',
+            'audio_options': ['Continuar com áudio', 'Desativar áudio'],
+            'audio_on': 'Ótimo! Manterei as respostas em áudio para facilitar. Como posso te ajudar hoje?',
+            'audio_off': 'Áudio desativado. Como posso te ajudar hoje?',
+            'initial_options': ['Marcar Consulta', 'Verificar Convênios', 'Horários de Visita', 'Acessibilidade'],
+            'unknown_input': 'Desculpe, não consegui entender sua solicitação. Poderia, por gentileza, tentar de outra forma?',
+            'appointment_start': 'Com certeza! Para iniciarmos o agendamento, por favor, me informe o seu número de CPF. Apenas os números, por favor.',
+            'cpf_placeholder': 'Ex: 12345678900',
+            'cpf_validation_error': 'O formato do CPF está incorreto. Por favor, digite apenas os 11 números, sem pontos ou traços.',
+            'checking_cpf': 'Agradeço! Estou verificando o CPF informado...',
+            'first_access_name': 'Parece que é seu primeiro acesso. Para prosseguir, qual o seu nome completo?',
+            'name_placeholder': 'Digite seu nome completo aqui',
+            'social_name_prompt': (name) => `${name}, você utiliza um nome social que gostaria que eu usasse?`, // Corrigido
+            'social_name_options': ['Sim, uso nome social', 'Não, não uso'],
+            'social_name_input': 'Por favor, informe seu nome social.',
+            'dob_prompt': 'Certo! Agora, qual a sua data de nascimento completa?',
+            'dob_placeholder': 'Ex: Dia/Mês/Ano (01/01/1950)',
+            'dob_validation_error': 'Data de nascimento inválida. Por favor, use o formato Dia/Mês/Ano (ex: 01/01/1950) e certifique-se de que é uma data real.',
+            'ask_email_permission': 'Você possui um e-mail para contato?',
+            'email_permission_options': ['Sim, tenho e-mail', 'Não, não tenho e-mail'],
+            'email_prompt': 'Para que eu possa enviar as informações do seu agendamento, qual o seu melhor endereço de e-mail?',
+            'email_placeholder': 'Ex: seuemail@dominio.com',
+            'email_validation_error': 'Formato de e-mail inválido. Por favor, insira um e-mail válido (ex: seuemail@dominio.com).',
+            'phone_prompt': 'Agradeço. E o seu número de telefone celular, incluindo o DDD?',
+            'phone_placeholder': 'Ex: (XX) 9XXXX-XXXX',
+            'phone_validation_error': 'Número de telefone inválido. Por favor, digite com o DDD, no formato (dois dígitos) nove quatro ou cinco dígitos hífen quatro dígitos ou apenas os 11 números, como 77912345678.', // Alterado para voz
+            'appointment_for_prompt': 'Este agendamento é para você mesmo(a) ou para outra pessoa?',
+            'appointment_for_options': ['Para mim mesmo(a)', 'Para outra pessoa'],
+            'appointment_type_prompt': 'Compreendido. Seria para uma consulta médica ou para um exame?',
+            'appointment_type_options': ['Consulta', 'Exame'],
+            'insurance_prompt': (type) => `Certo, um agendamento de ${type}. O atendimento será particular ou por meio de algum convênio médico?`,
+            'insurance_options': ['Particular', 'Por Convênio'],
+            'doctor_preference_prompt': 'Você possui alguma preferência por um médico ou médica específico(a)?',
+            'doctor_preference_options': ['Sim, tenho preferência', 'Não, qualquer um está bom'],
+            'doctor_name_prompt': 'Por favor, digite o nome completo do(a) médico(a) de sua preferência.',
+            'date_prompt': 'Entendido! Agora, qual a data de sua preferência?',
+            'date_placeholder': 'Ex: 25/12/2024',
+            'date_validation_error_format': 'Por favor, digite a data no formato correto: Dia/Mês/Ano (DD/MM/AAAA).',
+            'period_prompt': 'E qual período do dia você prefere?',
+            'period_options': ['Manhã', 'Tarde', 'Noite', 'Qualquer período'],
+            'appointment_summary_intro': 'Perfeito! Seu pré-agendamento foi concluído com sucesso.',
+            'appointment_summary': (data) => `Resumo do agendamento: Paciente: ${data.fullName} | Tipo de Atendimento: ${data.appointmentType} | Tipo de Convênio: ${data.insurance} | Médico(a) de Preferência: ${data.doctorPreference} | Data Agendada: ${data.preferredDate} | Período Preferido: ${data.preferredPeriod}`, // Corrigido
+            'final_message': 'Nossa equipe entrará em contato em breve para confirmar o horário exato e todos os detalhes. Seus dados foram salvos com segurança. Muito obrigado(a) pela confiança! Enviaremos um SMS ou e-mail de confirmação no horário e dia escolhido.',
+            'final_placeholder': 'Atendimento finalizado. Digite "Olá" para recomeçar.',
+            'convenio_info': 'No Hospital IBR, aceitamos os seguintes convênios: SulAmérica, Bradesco Saúde, Amil e Unimed. Para informações mais detalhadas sobre a cobertura do seu plano, o ideal é entrar em contato diretamente com a sua operadora de convênio.',
+            'visit_hours_info': 'O horário de visitas em nosso hospital é das 14h00 às 18h00, todos os dias da semana. É permitido apenas um visitante por vez para cada paciente, visando o bem-estar de todos.',
+            'accessibility_check': 'Sim, posso adaptar o atendimento para maior conforto. Você gostaria de aumentar o tamanho da fonte neste chat?',
+            'accessibility_options': ['Sim, fonte maior', 'Não, obrigado(a)'],
+            'font_adjusted': 'Pronto! Aumentei a fonte para você. Espero que esteja mais fácil de ler. Como mais posso te ajudar?',
+            'font_kept': 'Entendido. Mantive a fonte no tamanho padrão. Se precisar de mais alguma coisa, é só me dizer!',
+            'age_prompt': 'Para completar seu cadastro, qual a sua idade em anos?',
+            'age_placeholder': 'Ex: 65',
+            'age_validation_error': 'Por favor, digite uma idade válida, utilizando apenas números.',
+            'age_child_greeting': 'Que alegria conversar com você! Entendi que você é bem jovem. Para facilitar, vou usar uma linguagem mais simples e clara em nossas conversas, está bem?',
+            'age_adult_greeting': 'Certo, entendi sua idade. Como posso prosseguir para te ajudar agora?',
+            'age_adolescent_greeting': 'Certo, muito obrigado(a) por informar! Como posso te ajudar?',
+            'age_elderly_greeting': 'Muito obrigado(a) por informar sua idade! Fico feliz em ajudar. Farei o possível para ser o mais clara e paciente possível em nossas interações, e você pode pedir para repetir quando precisar, ok?',
+            'ask_alter_data_prompt': 'Você gostaria de alterar algum dado?', // Novo
+            'alter_data_options': ['Sim, alterar dados', 'Não, finalizar'], // Novo
+            'choose_field_to_alter': 'Qual dado você gostaria de alterar?', // Novo
+            'field_alter_options': { // Novo mapa para mapear campos para exibir nomes
+                'cpf': 'CPF',
+                'fullName': 'Nome Completo',
+                'socialName': 'Nome Social',
+                'dob': 'Data de Nascimento',
+                'email': 'E-mail',
+                'phone': 'Telefone',
+                'appointmentFor': 'Agendamento Para',
+                'appointmentType': 'Tipo de Atendimento',
+                'insurance': 'Convênio',
+                'doctorPreference': 'Médico(a) de Preferência',
+                'preferredDate': 'Data Agendada',
+                'preferredPeriod': 'Período Preferido'
+            },
+            'ask_new_value_prompt': (field) => `Por favor, digite o novo valor para "${field}".`, // Novo
+            'alter_success_message': (field) => `Campo "${field}" atualizado com sucesso!`, // Novo
+            'alter_invalid_field': 'Não consegui identificar o campo para alteração. Por favor, escolha uma das opções listadas.', // Novo
+            'alter_finished_message': 'Ótimo! Seus dados foram atualizados. Algo mais?' // Novo
+        }
+    };
+
+    /**
+     * Retrieves the translated text for a given key in the current language.
+     * @param {string} key - The key for the translation.
+     * @param {any} [data] - Optional data to pass to translation function if it's a function.
+     * @returns {string} The translated text.
+     */
+    function getTranslatedText(key, data = null) {
+        const text = translations['pt-BR'][key]; // Hardcoded to pt-BR
+        if (typeof text === 'function') {
+            return text(data);
+        }
+        return text || `[Missing translation for ${key}]`;
+    }
 
     // --- LÓGICA DE SÍNTESE DE VOZ (LEITOR) ---
     const synth = window.speechSynthesis;
     
     function loadAndSetVoice() {
         const voices = synth.getVoices();
-        // Tenta encontrar uma voz feminina conhecida em português (ex: Maria da Microsoft)
-        const femaleVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('maria'));
-        if (femaleVoice) {
-            selectedVoice = femaleVoice;
-        } else {
-            // Se não encontrar, pega a primeira voz feminina disponível em português
-            selectedVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('female')) ||
-                              voices.find(voice => voice.lang === 'pt-BR'); // Ou qualquer voz em português
+        // Tenta encontrar uma voz feminina em português (ex: Maria da Microsoft)
+        let preferredVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('maria'));
+        if (!preferredVoice) {
+            preferredVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('female'));
         }
+        selectedVoice = preferredVoice || voices.find(voice => voice.lang.startsWith('pt-BR')) || voices[0]; // Fallback
     }
 
-    // O evento 'voiceschanged' é disparado quando a lista de vozes do sistema é carregada.
-    // É essencial para garantir que temos acesso a todas as vozes disponíveis.
     synth.onvoiceschanged = loadAndSetVoice;
-    loadAndSetVoice(); // Chama uma vez para o caso das vozes já estarem carregadas
+    loadAndSetVoice(); 
 
     function speak(text) {
         if (!synth) {
             console.error("API de Síntese de Voz não suportada.");
             return;
         }
-        if (synth.speaking) synth.cancel();
-
+        // IMPORTANT: No synth.cancel() to ensure full text is read aloud without interruptions.
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'pt-BR';
+        utterance.lang = 'pt-BR'; // Hardcoded to pt-BR
 
-        // Se uma voz foi selecionada, aplica ela e ajusta o tom e velocidade
         if (selectedVoice) {
             utterance.voice = selectedVoice;
-            utterance.pitch = 0.85; // Tom mais grave (padrão 1)
-            utterance.rate = 0.95; // Velocidade ligeiramente mais lenta (padrão 1)
+            utterance.pitch = 0.85; 
+            utterance.rate = 0.95; 
         }
         
         synth.speak(utterance);
     }
-
 
     // --- LÓGICA DE RECONHECIMENTO DE VOZ (MICROFONE) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
+        recognition.lang = 'pt-BR'; // Hardcoded to pt-BR
         recognition.onstart = () => listeningIndicator.style.display = 'block';
         recognition.onend = () => listeningIndicator.style.display = 'none';
         recognition.onerror = (event) => console.error("Erro no reconhecimento de voz:", event.error);
@@ -196,7 +288,6 @@
             bubble.textContent = text;
             
             const speakerBtn = document.createElement('button');
-            // Ícone do alto-falante com hover na cor azul do IBR
             speakerBtn.className = 'ml-2 text-gray-400 hover:text-sky-700 p-1 rounded-full shrink-0';
             speakerBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.383-.217zM14.5 11a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" /></svg>`;
             speakerBtn.onclick = () => speak(text);
@@ -204,7 +295,6 @@
             messageElement.appendChild(bubble);
             messageElement.appendChild(speakerBtn);
         } else { // sender === 'user'
-            // Balão do usuário com a cor azul do IBR
             messageElement.className = 'p-3 rounded-xl chat-bubble w-fit bg-sky-800 text-white self-end';
             messageElement.textContent = text;
         }
@@ -220,7 +310,6 @@
         container.className = 'flex flex-wrap gap-2 justify-center';
         options.forEach(optionText => {
             const button = document.createElement('button');
-            // Botões de resposta rápida com o verde do IBR
             button.className = 'quick-reply-btn bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-200';
             button.textContent = optionText;
             button.onclick = () => { handleUserInput(optionText); optionsArea.innerHTML = ''; };
@@ -229,138 +318,383 @@
         optionsArea.appendChild(container);
     }
 
+    /** Adapts the greeting based on the user's age. */
+    function getAgeAdaptedGreeting(age) {
+        if (age <= 12) {
+            return getTranslatedText('age_child_greeting');
+        } else if (age > 12 && age < 18) {
+            return getTranslatedText('age_adolescent_greeting');
+        } else if (age >= 60) {
+            return getTranslatedText('age_elderly_greeting');
+        }
+        else {
+            return getTranslatedText('age_adult_greeting');
+        }
+    }
+
+    /** Helper function for input validation and state transition. */
+    function validateAndTransition(input, validationRegex, errorKey, nextState, successCallback) {
+        if (!validationRegex.test(input)) {
+            sendBotMessage(getTranslatedText(errorKey));
+            userInput.placeholder = getTranslatedText(errorKey.replace('_validation_error', '_placeholder'));
+            return false;
+        }
+        successCallback();
+        conversationState = nextState;
+        return true;
+    }
+
     /** Processa a entrada do usuário e gera a resposta do bot. */
     function processBotResponse(input) {
         const lowerInput = input.toLowerCase();
-        const handleUnknownInput = () => setTimeout(() => { sendBotMessage('Desculpa, não entendi. Pode tentar de outro jeito?'); showInitialOptions(); }, 500);
+        const handleUnknownInput = () => setTimeout(() => { sendBotMessage(getTranslatedText('unknown_input')); showInitialOptions(); }, 1000);
         
         switch(conversationState) {
             case 'audio_preference':
-                if (lowerInput.includes('desativar')) {
+                if (lowerInput.includes(getTranslatedText('audio_options')[1].toLowerCase().split(' ')[0])) {
                     isAudioEnabled = false;
-                    sendBotMessage('Áudio desativado. Como posso te ajudar hoje?');
+                    sendBotMessage(getTranslatedText('audio_off'));
                 } else {
                     isAudioEnabled = true;
-                    sendBotMessage('Ótimo! Manterei as respostas em áudio. Como posso te ajudar?');
+                    sendBotMessage(getTranslatedText('audio_on'));
                 }
                 conversationState = 'initial';
-                setTimeout(showInitialOptions, 1200);
+                setTimeout(showInitialOptions, 1500);
                 break;
 
             case 'initial':
-                if (lowerInput.includes('remarcar') || lowerInput.includes('marcar') || lowerInput.includes('agendar') || lowerInput.includes('consulta')) {
+                if (lowerInput.includes('remarcar') || lowerInput.includes('marcar') || lowerInput.includes('agendar') || lowerInput.includes(getTranslatedText('initial_options')[0].toLowerCase())) {
                     conversationState = 'start_registration';
-                    setTimeout(() => { sendBotMessage('Claro! Para iniciar o agendamento, por favor, me informe o seu CPF.'); userInput.placeholder = 'Digite apenas os números do CPF'; }, 500);
-                } else if (lowerInput.includes('convênio') || lowerInput.includes('plano')) {
-                    setTimeout(() => { sendBotMessage('Aceitamos: SulAmérica, Bradesco Saúde, Amil e Unimed. Para detalhes sobre a cobertura, o ideal é contatar diretamente o convênio.'); setTimeout(showInitialOptions, 1500); }, 500);
-                } else if (lowerInput.includes('horário') || lowerInput.includes('visita')) {
-                    setTimeout(() => { sendBotMessage('O horário de visitas é das 14h às 18h, todos os dias. É permitida a entrada de um visitante por vez.'); setTimeout(showInitialOptions, 1500); }, 500);
-                } else if (lowerInput.includes('acessibilidade')){
-                     conversationState = 'accessibility_check';
-                     setTimeout(() => { sendBotMessage('Sim, posso adaptar o atendimento. Você prefere a fonte maior neste chat?'); showQuickReplies(['Sim, fonte maior', 'Não, obrigado']); }, 500);
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('appointment_start')); 
+                        userInput.placeholder = getTranslatedText('cpf_placeholder'); 
+                    }, 800);
+                } else if (lowerInput.includes('convênio') || lowerInput.includes('plano') || lowerInput.includes(getTranslatedText('initial_options')[1].toLowerCase().split(' ')[0])) {
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('convenio_info')); 
+                        setTimeout(showInitialOptions, 2000); 
+                    }, 800);
+                } else if (lowerInput.includes('horário') || lowerInput.includes('visita') || lowerInput.includes(getTranslatedText('initial_options')[2].toLowerCase().split(' ')[0])) {
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('visit_hours_info')); 
+                        setTimeout(showInitialOptions, 2000); 
+                    }, 800);
+                } else if (lowerInput.includes('acessibilidade') || lowerInput.includes(getTranslatedText('initial_options')[3].toLowerCase())){
+                    conversationState = 'accessibility_check';
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('accessibility_check')); 
+                        showQuickReplies(getTranslatedText('accessibility_options')); 
+                    }, 800);
                 } else {
                     handleUnknownInput();
                 }
                 break;
             case 'accessibility_check':
-                if(lowerInput.includes('sim')){
+                if(lowerInput.includes(getTranslatedText('accessibility_options')[0].toLowerCase().split(',')[0])){
                     document.getElementById('chat-body').classList.add('accessible-font');
-                    setTimeout(() => { sendBotMessage('Pronto! Ajustei a fonte para você. Como mais posso te ajudar?'); }, 500);
+                    setTimeout(() => { sendBotMessage(getTranslatedText('font_adjusted')); }, 800);
                 } else {
-                    setTimeout(() => { sendBotMessage('Entendido. Mantive a fonte padrão. Como posso te ajudar?'); }, 500);
+                    setTimeout(() => { sendBotMessage(getTranslatedText('font_kept')); }, 800);
                 }
                 conversationState = 'initial';
-                setTimeout(showInitialOptions, 1200);
+                setTimeout(showInitialOptions, 1500);
                 break;
             case 'start_registration':
-                patientData.cpf = input;
-                conversationState = 'awaiting_name';
+                if (!validateAndTransition(input, /^\d{11}$/, 'cpf_validation_error', 'awaiting_name', () => patientData.cpf = input)) {
+                    return;
+                }
                 setTimeout(() => {
-                    sendBotMessage(`Obrigada! Verificando CPF...`);
-                    setTimeout(() => { sendBotMessage('É seu primeiro acesso. Qual o seu nome completo?'); userInput.placeholder = 'Digite seu nome completo'; }, 1500);
-                }, 500);
+                    sendBotMessage(getTranslatedText('checking_cpf'));
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('first_access_name')); 
+                        userInput.placeholder = getTranslatedText('name_placeholder'); 
+                    }, 2000);
+                }, 800);
                 break;
             case 'awaiting_name':
                 patientData.fullName = input;
+                conversationState = 'awaiting_age';
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('age_prompt')); 
+                    userInput.placeholder = getTranslatedText('age_placeholder'); 
+                }, 800);
+                break;
+            case 'awaiting_age':
+                const age = parseInt(input);
+                if (isNaN(age) || age <= 0 || age > 120) {
+                    sendBotMessage(getTranslatedText('age_validation_error'));
+                    userInput.placeholder = getTranslatedText('age_placeholder');
+                    return;
+                }
+                patientData.age = age;
                 conversationState = 'awaiting_social_name';
-                setTimeout(() => { sendBotMessage(`Obrigada, ${input.split(' ')[0]}. Você utiliza nome social?`); showQuickReplies(['Sim', 'Não']); }, 500);
+                setTimeout(() => {
+                    sendBotMessage(getAgeAdaptedGreeting(age));
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('social_name_prompt', patientData.fullName.split(' ')[0])); 
+                        userInput.placeholder = "Seu nome social (opcional)"; // Changed placeholder
+                    }, 1500);
+                }, 800);
                 break;
             case 'awaiting_social_name':
-                if (lowerInput === 'sim') {
+                if (lowerInput.includes(getTranslatedText('social_name_options')[0].toLowerCase())) {
                     conversationState = 'getting_social_name';
-                    setTimeout(() => sendBotMessage('Por favor, informe seu nome social.'), 500);
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('social_name_input')); 
+                        userInput.placeholder = "Digite o nome social"; // Specific placeholder
+                    }, 800);
                 } else {
                     patientData.socialName = 'N/A';
                     conversationState = 'awaiting_dob';
-                    setTimeout(() => { sendBotMessage('Entendido. Qual a sua data de nascimento?'); userInput.placeholder = 'DD/MM/AAAA'; }, 500);
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('dob_prompt')); 
+                        userInput.placeholder = getTranslatedText('dob_placeholder'); 
+                    }, 800);
                 }
                 break;
             case 'getting_social_name':
                 patientData.socialName = input;
                 conversationState = 'awaiting_dob';
-                setTimeout(() => { sendBotMessage('Registrado! Agora, qual a sua data de nascimento?'); userInput.placeholder = 'DD/MM/AAAA'; }, 500);
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('dob_prompt')); 
+                    userInput.placeholder = getTranslatedText('dob_placeholder'); 
+                }, 800);
                 break;
             case 'awaiting_dob':
+                const dobRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+                if (!dobRegex.test(input)) { 
+                    sendBotMessage(getTranslatedText('dob_validation_error'));
+                    userInput.placeholder = getTranslatedText('dob_placeholder');
+                    return;
+                }
+                const parts = input.split('/');
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const year = parseInt(parts[2]);
+                const dobDate = new Date(year, month, day);
+
+                if (dobDate.getFullYear() !== year || dobDate.getMonth() !== month || dobDate.getDate() !== day || dobDate > new Date()) {
+                    sendBotMessage(getTranslatedText('dob_validation_error'));
+                    userInput.placeholder = getTranslatedText('dob_placeholder');
+                    return;
+                }
                 patientData.dob = input;
-                conversationState = 'awaiting_email';
-                 setTimeout(() => { sendBotMessage('Qual o seu melhor e-mail para contato?'); userInput.placeholder = 'exemplo@email.com'; }, 500);
+                conversationState = 'ask_email_permission'; 
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('ask_email_permission')); 
+                    showQuickReplies(getTranslatedText('email_permission_options'));
+                    userInput.placeholder = ""; // Empty placeholder after this question
+                }, 800);
+                break;
+            case 'ask_email_permission': 
+                if (lowerInput.includes(getTranslatedText('email_permission_options')[0].toLowerCase().split(',')[0])) { 
+                    conversationState = 'awaiting_email';
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('email_prompt')); 
+                        userInput.placeholder = getTranslatedText('email_placeholder'); 
+                    }, 500);
+                } else { 
+                    patientData.email = 'N/A';
+                    conversationState = 'awaiting_phone';
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('phone_prompt')); 
+                        userInput.placeholder = getTranslatedText('phone_placeholder'); 
+                    }, 500);
+                }
                 break;
             case 'awaiting_email':
-                patientData.email = input;
-                conversationState = 'awaiting_phone';
-                setTimeout(() => { sendBotMessage('Obrigada. E o seu telefone celular com DDD?'); userInput.placeholder = '(XX) XXXXX-XXXX'; }, 500);
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!validateAndTransition(input, emailRegex, 'email_validation_error', 'awaiting_phone', () => patientData.email = input)) {
+                    return;
+                }
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('phone_prompt')); 
+                    userInput.placeholder = getTranslatedText('phone_placeholder'); 
+                }, 800);
                 break;
             case 'awaiting_phone':
-                patientData.phone = input;
-                conversationState = 'awaiting_appointment_for';
-                setTimeout(() => { sendBotMessage('O agendamento é para você mesmo(a) ou para outra pessoa?'); showQuickReplies(['Para mim', 'Para outra pessoa']); }, 500);
+                // Updated phone regex for flexibility
+                const phoneRegex = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$|^\d{11}$/;
+                if (!validateAndTransition(input, phoneRegex, 'phone_validation_error', 'awaiting_appointment_for', () => patientData.phone = input)) {
+                    return;
+                }
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('appointment_for_prompt')); 
+                    showQuickReplies(getTranslatedText('appointment_for_options')); 
+                    userInput.placeholder = ""; // Empty placeholder after this question
+                }, 800);
                 break;
             case 'awaiting_appointment_for':
                 patientData.appointmentFor = input;
                 conversationState = 'awaiting_appointment_type';
-                setTimeout(() => { sendBotMessage('Certo. Seria uma consulta ou um exame?'); showQuickReplies(['Consulta', 'Exame']); }, 500);
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('appointment_type_prompt')); 
+                    showQuickReplies(getTranslatedText('appointment_type_options')); 
+                }, 800);
                 break;
             case 'awaiting_appointment_type':
                 patientData.appointmentType = input;
                 conversationState = 'awaiting_insurance';
-                 setTimeout(() => { sendBotMessage(`Entendido, agendamento de ${patientData.appointmentType}. O atendimento será particular ou por convênio?`); showQuickReplies(['Particular', 'Convênio']); }, 500);
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('insurance_prompt', patientData.appointmentType)); 
+                    showQuickReplies(getTranslatedText('insurance_options')); 
+                }, 800);
                 break;
             case 'awaiting_insurance':
-                 patientData.insurance = input;
-                 conversationState = 'awaiting_doctor_preference';
-                 setTimeout(() => { sendBotMessage('Você tem preferência por algum médico?'); showQuickReplies(['Sim, tenho preferência', 'Não, pode ser qualquer um']); }, 500);
-                 break;
+                patientData.insurance = input;
+                conversationState = 'awaiting_doctor_preference';
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('doctor_preference_prompt')); 
+                    showQuickReplies(getTranslatedText('doctor_preference_options')); 
+                }, 800);
+                break;
             case 'awaiting_doctor_preference':
-                if(lowerInput.includes('sim')){
+                if(lowerInput.includes(getTranslatedText('doctor_preference_options')[0].toLowerCase().split(',')[0])){
                     conversationState = 'getting_doctor_name';
-                    setTimeout(() => sendBotMessage('Qual o nome do(a) médico(a) de sua preferência?'), 500);
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('doctor_name_prompt')); 
+                        userInput.placeholder = "Nome completo do médico(a)"; // Specific placeholder
+                    }, 800);
                 } else {
-                    patientData.doctorPreference = 'Sem preferência';
+                    patientData.doctorPreference = getTranslatedText('doctor_preference_options')[1];
                     conversationState = 'awaiting_date';
-                    setTimeout(() => { sendBotMessage('Ok. Qual a data e período de sua preferência?'); userInput.placeholder = 'Ex: 25/12, pela manhã'; }, 500);
+                    setTimeout(() => { 
+                        sendBotMessage(getTranslatedText('date_prompt')); 
+                        userInput.placeholder = getTranslatedText('date_placeholder'); 
+                    }, 800);
                 }
                 break;
             case 'getting_doctor_name':
                 patientData.doctorPreference = input;
                 conversationState = 'awaiting_date';
-                setTimeout(() => { sendBotMessage('Anotado! Qual a data e período de sua preferência?'); userInput.placeholder = 'Ex: 25/12, pela manhã'; }, 500);
+                setTimeout(() => { 
+                    sendBotMessage(getTranslatedText('date_prompt')); 
+                    userInput.placeholder = getTranslatedText('date_placeholder'); 
+                }, 800);
                 break;
             case 'awaiting_date':
+                const simpleDateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+                if (!simpleDateRegex.test(input)) {
+                    sendBotMessage(getTranslatedText('date_validation_error_format')); // Using new key
+                    userInput.placeholder = getTranslatedText('date_placeholder');
+                    return;
+                }
                 patientData.preferredDate = input;
+                conversationState = 'awaiting_period'; 
+                setTimeout(() => {
+                    sendBotMessage(getTranslatedText('period_prompt'));
+                    showQuickReplies(getTranslatedText('period_options'));
+                    userInput.placeholder = ""; // Empty placeholder after this question
+                }, 800);
+                break;
+            case 'awaiting_period': 
+                patientData.preferredPeriod = input; 
                 conversationState = 'finished';
                 setTimeout(() => {
-                    sendBotMessage('Perfeito! Seu pré-agendamento foi concluído.');
+                    sendBotMessage(getTranslatedText('appointment_summary_intro'));
                     setTimeout(() => {
-                        const summary = `Resumo: Paciente: ${patientData.fullName} | Tipo: ${patientData.appointmentType} | Convênio: ${patientData.insurance} | Médico: ${patientData.doctorPreference} | Data: ${patientData.preferredDate}`;
+                        const summary = getTranslatedText('appointment_summary', patientData);
                         sendBotMessage(summary);
                         setTimeout(() => {
-                            sendBotMessage('Nossa equipe confirmará o horário exato com você em breve. Seus dados foram salvos. Muito obrigada!');
-                            userInput.placeholder = 'Atendimento finalizado.';
-                            conversationState = 'initial';
-                            setTimeout(showInitialOptions, 2000);
-                        }, 1500);
-                    }, 1000);
+                            sendBotMessage(getTranslatedText('ask_alter_data_prompt')); // Novo: Perguntar se quer alterar dados
+                            showQuickReplies(getTranslatedText('alter_data_options')); // Novo: Opções de alteração
+                            userInput.placeholder = ""; // Limpar placeholder
+                            conversationState = 'awaiting_alter_choice'; // Novo estado
+                        }, 1500); // Atraso para ler o resumo
+                    }, 800);
                 }, 500);
+                break;
+            
+            case 'awaiting_alter_choice': // Novo estado para escolher alterar ou finalizar
+                if (lowerInput.includes(getTranslatedText('alter_data_options')[0].toLowerCase().split(',')[0])) { // 'sim, alterar dados'
+                    conversationState = 'awaiting_field_to_alter';
+                    const alterableFields = Object.keys(getTranslatedText('field_alter_options')).map(key => getTranslatedText('field_alter_options')[key]);
+                    setTimeout(() => {
+                        sendBotMessage(getTranslatedText('choose_field_to_alter'));
+                        showQuickReplies(alterableFields);
+                        userInput.placeholder = "Ex: CPF, Nome Completo"; // Placeholder para escolher campo
+                    }, 500);
+                } else if (lowerInput.includes(getTranslatedText('alter_data_options')[1].toLowerCase().split(',')[0])) { // 'não, finalizar'
+                    conversationState = 'finalized'; // Novo estado para finalização
+                    setTimeout(() => {
+                        sendBotMessage(getTranslatedText('final_message'));
+                        userInput.placeholder = getTranslatedText('final_placeholder');
+                        showQuickReplies(['Reiniciar Atendimento']);
+                        setupRestartButton();
+                    }, 500);
+                } else {
+                    sendBotMessage(getTranslatedText('unknown_input'));
+                    showQuickReplies(getTranslatedText('alter_data_options'));
+                }
+                break;
+
+            case 'awaiting_field_to_alter': // Novo estado para receber o nome do campo a ser alterado
+                const fieldMap = getTranslatedText('field_alter_options');
+                const fieldKey = Object.keys(fieldMap).find(key => fieldMap[key].toLowerCase() === lowerInput);
+
+                if (fieldKey) {
+                    fieldToAlter = fieldKey; // Armazena a chave do campo
+                    conversationState = 'awaiting_new_value';
+                    setTimeout(() => {
+                        sendBotMessage(getTranslatedText('ask_new_value_prompt', fieldMap[fieldKey]));
+                        // Define o placeholder correto para o campo que será alterado
+                        if (fieldKey === 'cpf') userInput.placeholder = getTranslatedText('cpf_placeholder');
+                        else if (fieldKey === 'dob') userInput.placeholder = getTranslatedText('dob_placeholder');
+                        else if (fieldKey === 'email') userInput.placeholder = getTranslatedText('email_placeholder');
+                        else if (fieldKey === 'phone') userInput.placeholder = getTranslatedText('phone_placeholder');
+                        else if (fieldKey === 'preferredDate') userInput.placeholder = getTranslatedText('date_placeholder');
+                        else if (fieldKey === 'preferredPeriod') userInput.placeholder = ""; // Limpa placeholder para período
+                        else userInput.placeholder = `Digite o novo ${fieldMap[fieldKey]}`; // Placeholder genérico
+                    }, 500);
+                } else {
+                    sendBotMessage(getTranslatedText('alter_invalid_field'));
+                    const alterableFields = Object.keys(getTranslatedText('field_alter_options')).map(key => getTranslatedText('field_alter_options')[key]);
+                    showQuickReplies(alterableFields);
+                }
+                break;
+
+            case 'awaiting_new_value': // Novo estado para receber o novo valor do campo
+                let isValid = true;
+                let validationErrorKey = '';
+
+                // Reutiliza a lógica de validação conforme o campo
+                if (fieldToAlter === 'cpf') {
+                    if (!/^\d{11}$/.test(input)) { isValid = false; validationErrorKey = 'cpf_validation_error'; }
+                } else if (fieldToAlter === 'dob') {
+                    const dobRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+                    const parts = input.split('/');
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1;
+                    const year = parseInt(parts[2]);
+                    const dobDate = new Date(year, month, day);
+                    if (!dobRegex.test(input) || dobDate.getFullYear() !== year || dobDate.getMonth() !== month || dobDate.getDate() !== day || dobDate > new Date()) {
+                        isValid = false; validationErrorKey = 'dob_validation_error';
+                    }
+                } else if (fieldToAlter === 'email') {
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { isValid = false; validationErrorKey = 'email_validation_error'; }
+                } else if (fieldToAlter === 'phone') {
+                    if (!/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$|^\d{11}$/.test(input)) { isValid = false; validationErrorKey = 'phone_validation_error'; }
+                } else if (fieldToAlter === 'preferredDate') {
+                    if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(input)) { isValid = false; validationErrorKey = 'date_validation_error_format'; }
+                }
+
+                if (isValid) {
+                    patientData[fieldToAlter] = input; // Atualiza o dado
+                    sendBotMessage(getTranslatedText('alter_success_message', getTranslatedText('field_alter_options')[fieldToAlter]));
+                    conversationState = 'awaiting_alter_choice'; // Retorna para perguntar se quer mais alterações
+                    setTimeout(() => {
+                        sendBotMessage(getTranslatedText('ask_alter_data_prompt'));
+                        showQuickReplies(getTranslatedText('alter_data_options'));
+                        userInput.placeholder = ""; // Limpar placeholder
+                    }, 1000);
+                } else {
+                    sendBotMessage(getTranslatedText(validationErrorKey));
+                    userInput.placeholder = getTranslatedText(validationErrorKey.replace('_validation_error', '_placeholder')) || `Digite o novo ${getTranslatedText('field_alter_options')[fieldToAlter]}`; // Mantém o placeholder específico
+                }
+                break;
+            
+            case 'finalized': // Novo estado finalizado para exibir o botão de reiniciar
+                // Apenas exibe as opções de reiniciar ou finalizar
                 break;
 
             default:
@@ -388,18 +722,33 @@
     function startConversation() {
         conversationState = 'audio_preference';
         setTimeout(() => {
-            // Atrasar a primeira fala para dar tempo de as vozes carregarem.
-            sendBotMessage('Olá! Eu sou a Dona Irba, sua assistente virtual. Para uma melhor acessibilidade, as minhas respostas serão lidas em voz alta.', true);
+            sendBotMessage(getTranslatedText('language_prompt'), true); 
             setTimeout(() => {
-                sendBotMessage('Você deseja continuar com as respostas em áudio ou prefere desativar?', true);
-                showQuickReplies(['Continuar com áudio', 'Desativar áudio']);
-            }, 2500);
+                sendBotMessage(getTranslatedText('audio_preference_prompt'), true);
+                showQuickReplies(getTranslatedText('audio_options'));
+            }, 3000);
         }, 1000);
     }
     
     /** Mostra as opções iniciais do menu principal. */
     function showInitialOptions() {
-        showQuickReplies(['Marcar Consulta', 'Verificar Convênios', 'Horários de Visita', 'Acessibilidade']);
+        showQuickReplies(getTranslatedText('initial_options'));
+        userInput.placeholder = "Digite sua mensagem..."; // Reset placeholder on initial options
+    }
+
+    /** Configura o botão de reiniciar atendimento. */
+    function setupRestartButton() {
+        const restartBtn = document.querySelector('.quick-reply-btn');
+        if (restartBtn && restartBtn.textContent === 'Reiniciar Atendimento') {
+            restartBtn.onclick = () => {
+                chatBody.innerHTML = ''; // Clear chat history
+                patientData = {}; // Reset patient data
+                conversationState = 'initial'; // Reset conversation state
+                startConversation(); // Start from the beginning
+                optionsArea.innerHTML = ''; // Clear restart button
+                userInput.placeholder = "Digite sua mensagem..."; // Reset placeholder
+            };
+        }
     }
 
     // --- EVENT LISTENERS ---
