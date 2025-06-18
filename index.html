@@ -10,7 +10,7 @@
         body {
             font-family: 'Inter', sans-serif;
             /* Cor de fundo principal inspirada no site IBR */
-            background-color: #f0f4f8; 
+            background-color: #f0f4f8;
         }
         .chat-container.accessible-font {
             font-size: 1.15rem; /* Fonte maior para acessibilidade */
@@ -46,7 +46,7 @@
     <div class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl flex flex-col h-[90vh] relative">
         <!-- Indicador de "Ouvindo" -->
         <div id="listening-indicator">Ouvindo...</div>
-        
+
         <!-- Cabeçalho - Usando o azul do IBR -->
         <div class="bg-sky-800 text-white p-4 rounded-t-2xl shadow-md flex justify-between items-center">
             <div class="flex items-center">
@@ -67,7 +67,7 @@
         <div id="chat-body" class="flex-1 p-6 space-y-4 overflow-y-auto chat-container">
             <!-- As mensagens do chat serão inseridas aqui -->
         </div>
-        
+
         <!-- Área de Opções Rápidas -->
         <div id="options-area" class="p-4 border-t border-gray-200">
             <!-- Opções iniciais ou de acessibilidade aparecerão aqui -->
@@ -221,22 +221,65 @@
         selectedVoice = preferredVoice || voices.find(voice => voice.lang.startsWith('pt-BR')) || voices[0]; // Fallback
     }
 
-    synth.onvoiceschanged = loadAndSetVoice;
-    loadAndSetVoice(); 
+    // Ensure voices are loaded before attempting to speak
+    // The onvoiceschanged event fires when the list of SpeechSynthesisVoice objects has been updated.
+    // This is the most reliable way to know when voices are available.
+    if (synth.onvoiceschanged !== undefined) {
+        synth.onvoiceschanged = loadAndSetVoice;
+    }
+    // Attempt to load voices immediately if they are already available (e.g., if the event already fired)
+    loadAndSetVoice();
 
+    /**
+     * Reproduz o texto em voz alta usando a API de Síntese de Voz.
+     * Inclui lógica para aguardar o carregamento da voz, se necessário.
+     * @param {string} text - O texto a ser lido.
+     */
     function speak(text) {
         if (!synth) {
             console.error("API de Síntese de Voz não suportada.");
             return;
         }
-        // IMPORTANT: No synth.cancel() to ensure full text is read aloud without interruptions.
+        
+        // Se a voz ainda não foi selecionada, tentamos carregá-la novamente
+        // e, se ainda não houver, esperamos o evento onvoiceschanged.
+        if (!selectedVoice) {
+            console.warn("Nenhuma voz selecionada para fala. Tentando carregar vozes novamente...");
+            loadAndSetVoice(); // Tenta carregar imediatamente
+
+            // Se ainda não houver voz após a tentativa imediata e o onvoiceschanged não estiver configurado para o nosso handler,
+            // configuramos para que a fala ocorra quando a voz estiver disponível.
+            if (!selectedVoice && synth.onvoiceschanged !== loadAndSetVoice) { // Verifica se já não foi configurado por esta lógica
+                const originalOnVoicesChanged = synth.onvoiceschanged; // Guarda o original se houver
+                synth.onvoiceschanged = () => {
+                    loadAndSetVoice(); // Carrega as vozes assim que estiverem disponíveis
+                    if (selectedVoice) { // Se uma voz estiver agora disponível, reproduz o texto
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = 'pt-BR';
+                        utterance.voice = selectedVoice;
+                        utterance.pitch = 0.85;
+                        utterance.rate = 0.95;
+                        synth.speak(utterance);
+                        synth.onvoiceschanged = originalOnVoicesChanged; // Restaura o handler original se houver
+                    }
+                };
+                return; // Sai para esperar o onvoiceschanged
+            } else if (!selectedVoice) {
+                 // Se onvoiceschanged já está configurado (ex: pelo setup inicial)
+                 // ou se ainda não há voz após a tentativa direta, apenas registra e retorna.
+                 // A suposição é que o listener inicial do onvoiceschanged acabará configurando-a.
+                 console.warn("Ainda não foi possível selecionar a voz. A fala pode ser atrasada.");
+                 return;
+            }
+        }
+
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'pt-BR'; // Hardcoded to pt-BR
+        utterance.lang = 'pt-BR'; // Fixado para pt-BR
 
         if (selectedVoice) {
             utterance.voice = selectedVoice;
-            utterance.pitch = 0.85; 
-            utterance.rate = 0.95; 
+            utterance.pitch = 0.85;
+            utterance.rate = 0.95;
         }
         
         synth.speak(utterance);
@@ -247,7 +290,7 @@
     let recognition;
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR'; // Hardcoded to pt-BR
+        recognition.lang = 'pt-BR'; // Fixado para pt-BR
         recognition.onstart = () => listeningIndicator.style.display = 'block';
         recognition.onend = () => listeningIndicator.style.display = 'none';
         recognition.onerror = (event) => console.error("Erro no reconhecimento de voz:", event.error);
@@ -432,6 +475,7 @@
                     sendBotMessage(getAgeAdaptedGreeting(age));
                     setTimeout(() => { 
                         sendBotMessage(getTranslatedText('social_name_prompt', patientData.fullName.split(' ')[0])); 
+                        showQuickReplies(getTranslatedText('social_name_options')); // Added quick replies for social name
                         userInput.placeholder = "Seu nome social (opcional)"; // Changed placeholder
                     }, 1500);
                 }, 800);
@@ -643,7 +687,10 @@
                         else if (fieldKey === 'email') userInput.placeholder = getTranslatedText('email_placeholder');
                         else if (fieldKey === 'phone') userInput.placeholder = getTranslatedText('phone_placeholder');
                         else if (fieldKey === 'preferredDate') userInput.placeholder = getTranslatedText('date_placeholder');
-                        else if (fieldKey === 'preferredPeriod') userInput.placeholder = ""; // Limpa placeholder para período
+                        else if (fieldKey === 'preferredPeriod') {
+                            showQuickReplies(getTranslatedText('period_options')); // Offer quick replies for period
+                            userInput.placeholder = ""; // Limpa placeholder para período
+                        }
                         else userInput.placeholder = `Digite o novo ${fieldMap[fieldKey]}`; // Placeholder genérico
                     }, 500);
                 } else {
@@ -676,6 +723,13 @@
                     if (!/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$|^\d{11}$/.test(input)) { isValid = false; validationErrorKey = 'phone_validation_error'; }
                 } else if (fieldToAlter === 'preferredDate') {
                     if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(input)) { isValid = false; validationErrorKey = 'date_validation_error_format'; }
+                } else if (fieldToAlter === 'preferredPeriod') {
+                    // Validate period if necessary (e.g., check if it's one of the allowed options)
+                    const allowedPeriods = getTranslatedText('period_options').map(opt => opt.toLowerCase());
+                    if (!allowedPeriods.includes(input.toLowerCase())) {
+                        isValid = false;
+                        validationErrorKey = 'unknown_input'; // Or a more specific error
+                    }
                 }
 
                 if (isValid) {
@@ -756,7 +810,8 @@
     userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUserInput(); });
     micBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
 
-    window.onload = startConversation;
+    // Use DOMContentLoaded para garantir que o script seja executado após o DOM estar totalmente carregado
+    document.addEventListener('DOMContentLoaded', startConversation);
 </script>
 </body>
 </html>
