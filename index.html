@@ -52,7 +52,7 @@
             <div class="flex items-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/1626/1626629.png" onerror="this.onerror=null;this.src='https://placehold.co/48x48/ffffff/003d73?text=IBR';" alt="Avatar da Dona Irba" class="w-12 h-12 rounded-full mr-4 border-2 border-white/50">
                 <div>
-                    <h1 class="text-xl font-bold">Irba</h1>
+                    <h1 class="text-xl font-bold">Dona Irba</h1>
                     <p class="text-sm opacity-90">Assistente Virtual do Hospital IBR</p>
                 </div>
             </div>
@@ -112,7 +112,7 @@
     // --- TRADUÇÕES (Removida a opção de idioma, mantido apenas pt-BR) ---
     const translations = {
         'pt-BR': {
-            'language_prompt': 'Olá! Eu sou a Irba, sua assistente virtual. Para uma melhor acessibilidade, as minhas respostas serão lidas em voz alta.',
+            'language_prompt': 'Olá! Eu sou a Dona Irba, sua assistente virtual. Para uma melhor acessibilidade, as minhas respostas serão lidas em voz alta.',
             'audio_preference_prompt': 'Você deseja continuar com as respostas em áudio ou prefere desativar?',
             'audio_options': ['Continuar com áudio', 'Desativar áudio'],
             'audio_on': 'Ótimo! Manterei as respostas em áudio para facilitar. Como posso te ajudar hoje?',
@@ -125,7 +125,7 @@
             'checking_cpf': 'Agradeço! Estou verificando o CPF informado...',
             'first_access_name': 'Parece que é seu primeiro acesso. Para prosseguir, qual o seu nome completo?',
             'name_placeholder': 'Digite seu nome completo aqui',
-            'social_name_prompt': (name) => `${name}, você utiliza um nome social que gostaria que eu usasse?`, // Corrigido
+            'social_name_prompt': (name) => `${name}, você utiliza um nome social que gostaria que eu usasse?`,
             'social_name_options': ['Sim, uso nome social', 'Não, não uso'],
             'social_name_input': 'Por favor, informe seu nome social.',
             'dob_prompt': 'Certo! Agora, qual a sua data de nascimento completa?',
@@ -138,7 +138,7 @@
             'email_validation_error': 'Formato de e-mail inválido. Por favor, insira um e-mail válido (ex: seuemail@dominio.com).',
             'phone_prompt': 'Agradeço. E o seu número de telefone celular, incluindo o DDD?',
             'phone_placeholder': 'Ex: (XX) 9XXXX-XXXX',
-            'phone_validation_error': 'Número de telefone inválido. Por favor, digite com o DDD, no formato (dois dígitos) nove quatro ou cinco dígitos hífen quatro dígitos ou apenas os 11 números, como 77912345678.', // Alterado para voz
+            'phone_validation_error': 'Número de telefone inválido. Por favor, digite com o DDD, no formato (dois dígitos) nove quatro ou cinco dígitos hífen quatro dígitos ou apenas os 11 números, como 77912345678.',
             'appointment_for_prompt': 'Este agendamento é para você mesmo(a) ou para outra pessoa?',
             'appointment_for_options': ['Para mim mesmo(a)', 'Para outra pessoa'],
             'appointment_type_prompt': 'Compreendido. Seria para uma consulta médica ou para um exame?',
@@ -154,7 +154,7 @@
             'period_prompt': 'E qual período do dia você prefere?',
             'period_options': ['Manhã', 'Tarde', 'Noite', 'Qualquer período'],
             'appointment_summary_intro': 'Perfeito! Seu pré-agendamento foi concluído com sucesso.',
-            'appointment_summary': (data) => `Resumo do agendamento: Paciente: ${data.fullName} | Tipo de Atendimento: ${data.appointmentType} | Tipo de Convênio: ${data.insurance} | Médico(a) de Preferência: ${data.doctorPreference} | Data Agendada: ${data.preferredDate} | Período Preferido: ${data.preferredPeriod}`, // Corrigido
+            'appointment_summary': (data) => `Resumo do agendamento: Paciente: ${data.fullName} | Tipo de Atendimento: ${data.appointmentType} | Tipo de Convênio: ${data.insurance} | Médico(a) de Preferência: ${data.doctorPreference} | Data Agendada: ${data.preferredDate} | Período Preferido: ${data.preferredPeriod}`,
             'final_message': 'Nossa equipe entrará em contato em breve para confirmar o horário exato e todos os detalhes. Seus dados foram salvos com segurança. Muito obrigado(a) pela confiança! Enviaremos um SMS ou e-mail de confirmação no horário e dia escolhido.',
             'final_placeholder': 'Atendimento finalizado. Digite "Olá" para recomeçar.',
             'convenio_info': 'No Hospital IBR, aceitamos os seguintes convênios: SulAmérica, Bradesco Saúde, Amil e Unimed. Para informações mais detalhadas sobre a cobertura do seu plano, o ideal é entrar em contato diretamente com a sua operadora de convênio.',
@@ -170,10 +170,10 @@
             'age_adult_greeting': 'Certo, entendi sua idade. Como posso prosseguir para te ajudar agora?',
             'age_adolescent_greeting': 'Certo, muito obrigado(a) por informar! Como posso te ajudar?',
             'age_elderly_greeting': 'Muito obrigado(a) por informar sua idade! Fico feliz em ajudar. Farei o possível para ser o mais clara e paciente possível em nossas interações, e você pode pedir para repetir quando precisar, ok?',
-            'ask_alter_data_prompt': 'Você gostaria de alterar algum dado?', // Novo
-            'alter_data_options': ['Sim, alterar dados', 'Não, finalizar'], // Novo
-            'choose_field_to_alter': 'Qual dado você gostaria de alterar?', // Novo
-            'field_alter_options': { // Novo mapa para mapear campos para exibir nomes
+            'ask_alter_data_prompt': 'Você gostaria de alterar algum dado?',
+            'alter_data_options': ['Sim, alterar dados', 'Não, finalizar'],
+            'choose_field_to_alter': 'Qual dado você gostaria de alterar?',
+            'field_alter_options': {
                 'cpf': 'CPF',
                 'fullName': 'Nome Completo',
                 'socialName': 'Nome Social',
@@ -187,10 +187,10 @@
                 'preferredDate': 'Data Agendada',
                 'preferredPeriod': 'Período Preferido'
             },
-            'ask_new_value_prompt': (field) => `Por favor, digite o novo valor para "${field}".`, // Novo
-            'alter_success_message': (field) => `Campo "${field}" atualizado com sucesso!`, // Novo
-            'alter_invalid_field': 'Não consegui identificar o campo para alteração. Por favor, escolha uma das opções listadas.', // Novo
-            'alter_finished_message': 'Ótimo! Seus dados foram atualizados. Algo mais?' // Novo
+            'ask_new_value_prompt': (field) => `Por favor, digite o novo valor para "${field}".`,
+            'alter_success_message': (field) => `Campo "${field}" atualizado com sucesso!`,
+            'alter_invalid_field': 'Não consegui identificar o campo para alteração. Por favor, escolha uma das opções listadas.',
+            'alter_finished_message': 'Ótimo! Seus dados foram atualizados. Algo mais?'
         }
     };
 
@@ -201,7 +201,7 @@
      * @returns {string} The translated text.
      */
     function getTranslatedText(key, data = null) {
-        const text = translations['pt-BR'][key]; // Hardcoded to pt-BR
+        const text = translations['pt-BR'][key];
         if (typeof text === 'function') {
             return text(data);
         }
@@ -213,21 +213,16 @@
     
     function loadAndSetVoice() {
         const voices = synth.getVoices();
-        // Tenta encontrar uma voz feminina em português (ex: Maria da Microsoft)
         let preferredVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('maria'));
         if (!preferredVoice) {
             preferredVoice = voices.find(voice => voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('female'));
         }
-        selectedVoice = preferredVoice || voices.find(voice => voice.lang.startsWith('pt-BR')) || voices[0]; // Fallback
+        selectedVoice = preferredVoice || voices.find(voice => voice.lang.startsWith('pt-BR')) || voices[0];
     }
 
-    // Ensure voices are loaded before attempting to speak
-    // The onvoiceschanged event fires when the list of SpeechSynthesisVoice objects has been updated.
-    // This is the most reliable way to know when voices are available.
     if (synth.onvoiceschanged !== undefined) {
         synth.onvoiceschanged = loadAndSetVoice;
     }
-    // Attempt to load voices immediately if they are already available (e.g., if the event already fired)
     loadAndSetVoice();
 
     /**
@@ -241,40 +236,33 @@
             return;
         }
         
-        // Se a voz ainda não foi selecionada, tentamos carregá-la novamente
-        // e, se ainda não houver, esperamos o evento onvoiceschanged.
         if (!selectedVoice) {
             console.warn("Nenhuma voz selecionada para fala. Tentando carregar vozes novamente...");
-            loadAndSetVoice(); // Tenta carregar imediatamente
+            loadAndSetVoice();
 
-            // Se ainda não houver voz após a tentativa imediata e o onvoiceschanged não estiver configurado para o nosso handler,
-            // configuramos para que a fala ocorra quando a voz estiver disponível.
-            if (!selectedVoice && synth.onvoiceschanged !== loadAndSetVoice) { // Verifica se já não foi configurado por esta lógica
-                const originalOnVoicesChanged = synth.onvoiceschanged; // Guarda o original se houver
+            if (!selectedVoice && synth.onvoiceschanged !== loadAndSetVoice) {
+                const originalOnVoicesChanged = synth.onvoiceschanged;
                 synth.onvoiceschanged = () => {
-                    loadAndSetVoice(); // Carrega as vozes assim que estiverem disponíveis
-                    if (selectedVoice) { // Se uma voz estiver agora disponível, reproduz o texto
+                    loadAndSetVoice();
+                    if (selectedVoice) {
                         const utterance = new SpeechSynthesisUtterance(text);
                         utterance.lang = 'pt-BR';
                         utterance.voice = selectedVoice;
                         utterance.pitch = 0.85;
                         utterance.rate = 0.95;
                         synth.speak(utterance);
-                        synth.onvoiceschanged = originalOnVoicesChanged; // Restaura o handler original se houver
+                        synth.onvoiceschanged = originalOnVoicesChanged;
                     }
                 };
-                return; // Sai para esperar o onvoiceschanged
+                return;
             } else if (!selectedVoice) {
-                 // Se onvoiceschanged já está configurado (ex: pelo setup inicial)
-                 // ou se ainda não há voz após a tentativa direta, apenas registra e retorna.
-                 // A suposição é que o listener inicial do onvoiceschanged acabará configurando-a.
                  console.warn("Ainda não foi possível selecionar a voz. A fala pode ser atrasada.");
                  return;
             }
         }
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'pt-BR'; // Fixado para pt-BR
+        utterance.lang = 'pt-BR';
 
         if (selectedVoice) {
             utterance.voice = selectedVoice;
@@ -290,7 +278,7 @@
     let recognition;
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR'; // Fixado para pt-BR
+        recognition.lang = 'pt-BR';
         recognition.onstart = () => listeningIndicator.style.display = 'block';
         recognition.onend = () => listeningIndicator.style.display = 'none';
         recognition.onerror = (event) => console.error("Erro no reconhecimento de voz:", event.error);
@@ -303,6 +291,17 @@
     }
     
     // --- LÓGICA DO CHATBOT ---
+
+    /**
+     * Função auxiliar para formatar uma string de números para leitura dígito a dígito.
+     * Ex: "12345" -> "um, dois, três, quatro, cinco"
+     * @param {string} numberString - A string de números a ser formatada.
+     * @returns {string} A string formatada para leitura dígito a dígito.
+     */
+    function formatNumberForSpeech(numberString) {
+        // Remove qualquer caractere não numérico e adiciona vírgulas para pausas na fala
+        return String(numberString).replace(/\D/g, '').split('').join(', ');
+    }
 
     /**
      * Envia uma mensagem do bot, com opção de leitura em voz alta.
@@ -443,16 +442,19 @@
                 setTimeout(showInitialOptions, 1500);
                 break;
             case 'start_registration':
-                if (!validateAndTransition(input, /^\d{11}$/, 'cpf_validation_error', 'awaiting_name', () => patientData.cpf = input)) {
+                const cleanedCpfInput = input.replace(/\D/g, ''); // Remove non-digits for validation
+                if (!validateAndTransition(cleanedCpfInput, /^\d{11}$/, 'cpf_validation_error', 'awaiting_name', () => patientData.cpf = cleanedCpfInput)) {
                     return;
                 }
+                // Confirma o CPF lendo dígito por dígito
+                sendBotMessage(`Confirmo que seu CPF é: ${formatNumberForSpeech(patientData.cpf)}.`);
                 setTimeout(() => {
                     sendBotMessage(getTranslatedText('checking_cpf'));
                     setTimeout(() => { 
                         sendBotMessage(getTranslatedText('first_access_name')); 
                         userInput.placeholder = getTranslatedText('name_placeholder'); 
-                    }, 2000);
-                }, 800);
+                    }, 2000); // Aumentado o delay para a próxima mensagem após a leitura do CPF
+                }, 1500); // Aumentado o delay para a próxima mensagem após a leitura do CPF
                 break;
             case 'awaiting_name':
                 patientData.fullName = input;
@@ -475,8 +477,8 @@
                     sendBotMessage(getAgeAdaptedGreeting(age));
                     setTimeout(() => { 
                         sendBotMessage(getTranslatedText('social_name_prompt', patientData.fullName.split(' ')[0])); 
-                        showQuickReplies(getTranslatedText('social_name_options')); // Added quick replies for social name
-                        userInput.placeholder = "Seu nome social (opcional)"; // Changed placeholder
+                        showQuickReplies(getTranslatedText('social_name_options'));
+                        userInput.placeholder = "Seu nome social (opcional)";
                     }, 1500);
                 }, 800);
                 break;
@@ -485,7 +487,7 @@
                     conversationState = 'getting_social_name';
                     setTimeout(() => { 
                         sendBotMessage(getTranslatedText('social_name_input')); 
-                        userInput.placeholder = "Digite o nome social"; // Specific placeholder
+                        userInput.placeholder = "Digite o nome social";
                     }, 800);
                 } else {
                     patientData.socialName = 'N/A';
@@ -527,7 +529,7 @@
                 setTimeout(() => { 
                     sendBotMessage(getTranslatedText('ask_email_permission')); 
                     showQuickReplies(getTranslatedText('email_permission_options'));
-                    userInput.placeholder = ""; // Empty placeholder after this question
+                    userInput.placeholder = "";
                 }, 800);
                 break;
             case 'ask_email_permission': 
@@ -557,7 +559,6 @@
                 }, 800);
                 break;
             case 'awaiting_phone':
-                // Updated phone regex for flexibility
                 const phoneRegex = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$|^\d{11}$/;
                 if (!validateAndTransition(input, phoneRegex, 'phone_validation_error', 'awaiting_appointment_for', () => patientData.phone = input)) {
                     return;
@@ -565,7 +566,7 @@
                 setTimeout(() => { 
                     sendBotMessage(getTranslatedText('appointment_for_prompt')); 
                     showQuickReplies(getTranslatedText('appointment_for_options')); 
-                    userInput.placeholder = ""; // Empty placeholder after this question
+                    userInput.placeholder = "";
                 }, 800);
                 break;
             case 'awaiting_appointment_for':
@@ -597,7 +598,7 @@
                     conversationState = 'getting_doctor_name';
                     setTimeout(() => { 
                         sendBotMessage(getTranslatedText('doctor_name_prompt')); 
-                        userInput.placeholder = "Nome completo do médico(a)"; // Specific placeholder
+                        userInput.placeholder = "Nome completo do médico(a)";
                     }, 800);
                 } else {
                     patientData.doctorPreference = getTranslatedText('doctor_preference_options')[1];
@@ -619,7 +620,7 @@
             case 'awaiting_date':
                 const simpleDateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
                 if (!simpleDateRegex.test(input)) {
-                    sendBotMessage(getTranslatedText('date_validation_error_format')); // Using new key
+                    sendBotMessage(getTranslatedText('date_validation_error_format'));
                     userInput.placeholder = getTranslatedText('date_placeholder');
                     return;
                 }
@@ -628,7 +629,7 @@
                 setTimeout(() => {
                     sendBotMessage(getTranslatedText('period_prompt'));
                     showQuickReplies(getTranslatedText('period_options'));
-                    userInput.placeholder = ""; // Empty placeholder after this question
+                    userInput.placeholder = "";
                 }, 800);
                 break;
             case 'awaiting_period': 
@@ -640,26 +641,26 @@
                         const summary = getTranslatedText('appointment_summary', patientData);
                         sendBotMessage(summary);
                         setTimeout(() => {
-                            sendBotMessage(getTranslatedText('ask_alter_data_prompt')); // Novo: Perguntar se quer alterar dados
-                            showQuickReplies(getTranslatedText('alter_data_options')); // Novo: Opções de alteração
-                            userInput.placeholder = ""; // Limpar placeholder
-                            conversationState = 'awaiting_alter_choice'; // Novo estado
-                        }, 1500); // Atraso para ler o resumo
+                            sendBotMessage(getTranslatedText('ask_alter_data_prompt'));
+                            showQuickReplies(getTranslatedText('alter_data_options'));
+                            userInput.placeholder = "";
+                            conversationState = 'awaiting_alter_choice';
+                        }, 1500);
                     }, 800);
                 }, 500);
                 break;
             
-            case 'awaiting_alter_choice': // Novo estado para escolher alterar ou finalizar
-                if (lowerInput.includes(getTranslatedText('alter_data_options')[0].toLowerCase().split(',')[0])) { // 'sim, alterar dados'
+            case 'awaiting_alter_choice':
+                if (lowerInput.includes(getTranslatedText('alter_data_options')[0].toLowerCase().split(',')[0])) {
                     conversationState = 'awaiting_field_to_alter';
                     const alterableFields = Object.keys(getTranslatedText('field_alter_options')).map(key => getTranslatedText('field_alter_options')[key]);
                     setTimeout(() => {
                         sendBotMessage(getTranslatedText('choose_field_to_alter'));
                         showQuickReplies(alterableFields);
-                        userInput.placeholder = "Ex: CPF, Nome Completo"; // Placeholder para escolher campo
+                        userInput.placeholder = "Ex: CPF, Nome Completo";
                     }, 500);
-                } else if (lowerInput.includes(getTranslatedText('alter_data_options')[1].toLowerCase().split(',')[0])) { // 'não, finalizar'
-                    conversationState = 'finalized'; // Novo estado para finalização
+                } else if (lowerInput.includes(getTranslatedText('alter_data_options')[1].toLowerCase().split(',')[0])) {
+                    conversationState = 'finalized';
                     setTimeout(() => {
                         sendBotMessage(getTranslatedText('final_message'));
                         userInput.placeholder = getTranslatedText('final_placeholder');
@@ -672,26 +673,25 @@
                 }
                 break;
 
-            case 'awaiting_field_to_alter': // Novo estado para receber o nome do campo a ser alterado
+            case 'awaiting_field_to_alter':
                 const fieldMap = getTranslatedText('field_alter_options');
                 const fieldKey = Object.keys(fieldMap).find(key => fieldMap[key].toLowerCase() === lowerInput);
 
                 if (fieldKey) {
-                    fieldToAlter = fieldKey; // Armazena a chave do campo
+                    fieldToAlter = fieldKey;
                     conversationState = 'awaiting_new_value';
                     setTimeout(() => {
                         sendBotMessage(getTranslatedText('ask_new_value_prompt', fieldMap[fieldKey]));
-                        // Define o placeholder correto para o campo que será alterado
                         if (fieldKey === 'cpf') userInput.placeholder = getTranslatedText('cpf_placeholder');
                         else if (fieldKey === 'dob') userInput.placeholder = getTranslatedText('dob_placeholder');
                         else if (fieldKey === 'email') userInput.placeholder = getTranslatedText('email_placeholder');
                         else if (fieldKey === 'phone') userInput.placeholder = getTranslatedText('phone_placeholder');
                         else if (fieldKey === 'preferredDate') userInput.placeholder = getTranslatedText('date_placeholder');
                         else if (fieldKey === 'preferredPeriod') {
-                            showQuickReplies(getTranslatedText('period_options')); // Offer quick replies for period
-                            userInput.placeholder = ""; // Limpa placeholder para período
+                            showQuickReplies(getTranslatedText('period_options'));
+                            userInput.placeholder = "";
                         }
-                        else userInput.placeholder = `Digite o novo ${fieldMap[fieldKey]}`; // Placeholder genérico
+                        else userInput.placeholder = `Digite o novo ${fieldMap[fieldKey]}`;
                     }, 500);
                 } else {
                     sendBotMessage(getTranslatedText('alter_invalid_field'));
@@ -700,13 +700,14 @@
                 }
                 break;
 
-            case 'awaiting_new_value': // Novo estado para receber o novo valor do campo
+            case 'awaiting_new_value':
                 let isValid = true;
                 let validationErrorKey = '';
+                let processedInput = input; // Variável para o input limpo/processado
 
-                // Reutiliza a lógica de validação conforme o campo
                 if (fieldToAlter === 'cpf') {
-                    if (!/^\d{11}$/.test(input)) { isValid = false; validationErrorKey = 'cpf_validation_error'; }
+                    processedInput = input.replace(/\D/g, ''); // Remove non-digits for CPF alteration
+                    if (!/^\d{11}$/.test(processedInput)) { isValid = false; validationErrorKey = 'cpf_validation_error'; }
                 } else if (fieldToAlter === 'dob') {
                     const dobRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
                     const parts = input.split('/');
@@ -724,31 +725,29 @@
                 } else if (fieldToAlter === 'preferredDate') {
                     if (!/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(input)) { isValid = false; validationErrorKey = 'date_validation_error_format'; }
                 } else if (fieldToAlter === 'preferredPeriod') {
-                    // Validate period if necessary (e.g., check if it's one of the allowed options)
                     const allowedPeriods = getTranslatedText('period_options').map(opt => opt.toLowerCase());
                     if (!allowedPeriods.includes(input.toLowerCase())) {
                         isValid = false;
-                        validationErrorKey = 'unknown_input'; // Or a more specific error
+                        validationErrorKey = 'unknown_input';
                     }
                 }
 
                 if (isValid) {
-                    patientData[fieldToAlter] = input; // Atualiza o dado
+                    patientData[fieldToAlter] = processedInput; // Usa o input processado
                     sendBotMessage(getTranslatedText('alter_success_message', getTranslatedText('field_alter_options')[fieldToAlter]));
-                    conversationState = 'awaiting_alter_choice'; // Retorna para perguntar se quer mais alterações
+                    conversationState = 'awaiting_alter_choice';
                     setTimeout(() => {
                         sendBotMessage(getTranslatedText('ask_alter_data_prompt'));
                         showQuickReplies(getTranslatedText('alter_data_options'));
-                        userInput.placeholder = ""; // Limpar placeholder
+                        userInput.placeholder = "";
                     }, 1000);
                 } else {
                     sendBotMessage(getTranslatedText(validationErrorKey));
-                    userInput.placeholder = getTranslatedText(validationErrorKey.replace('_validation_error', '_placeholder')) || `Digite o novo ${getTranslatedText('field_alter_options')[fieldToAlter]}`; // Mantém o placeholder específico
+                    userInput.placeholder = getTranslatedText(validationErrorKey.replace('_validation_error', '_placeholder')) || `Digite o novo ${getTranslatedText('field_alter_options')[fieldToAlter]}`;
                 }
                 break;
             
-            case 'finalized': // Novo estado finalizado para exibir o botão de reiniciar
-                // Apenas exibe as opções de reiniciar ou finalizar
+            case 'finalized':
                 break;
 
             default:
@@ -787,7 +786,7 @@
     /** Mostra as opções iniciais do menu principal. */
     function showInitialOptions() {
         showQuickReplies(getTranslatedText('initial_options'));
-        userInput.placeholder = "Digite sua mensagem..."; // Reset placeholder on initial options
+        userInput.placeholder = "Digite sua mensagem...";
     }
 
     /** Configura o botão de reiniciar atendimento. */
@@ -795,12 +794,12 @@
         const restartBtn = document.querySelector('.quick-reply-btn');
         if (restartBtn && restartBtn.textContent === 'Reiniciar Atendimento') {
             restartBtn.onclick = () => {
-                chatBody.innerHTML = ''; // Clear chat history
-                patientData = {}; // Reset patient data
-                conversationState = 'initial'; // Reset conversation state
-                startConversation(); // Start from the beginning
-                optionsArea.innerHTML = ''; // Clear restart button
-                userInput.placeholder = "Digite sua mensagem..."; // Reset placeholder
+                chatBody.innerHTML = '';
+                patientData = {};
+                conversationState = 'initial';
+                startConversation();
+                optionsArea.innerHTML = '';
+                userInput.placeholder = "Digite sua mensagem...";
             };
         }
     }
@@ -810,7 +809,6 @@
     userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUserInput(); });
     micBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
 
-    // Use DOMContentLoaded para garantir que o script seja executado após o DOM estar totalmente carregado
     document.addEventListener('DOMContentLoaded', startConversation);
 </script>
 </body>
