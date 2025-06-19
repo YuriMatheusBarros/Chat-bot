@@ -9,11 +9,11 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* Cor de fundo principal inspirada no site IBR */
+            
             background-color: #f0f4f8;
         }
         .chat-container.accessible-font {
-            font-size: 1.15rem; /* Fonte maior para acessibilidade */
+            font-size: 1.15rem; 
         }
         .chat-bubble {
             max-width: 80%;
@@ -34,20 +34,20 @@
             border-radius: 1rem;
             z-index: 100;
         }
-        /* Definindo as cores primárias do IBR como variáveis para fácil customização */
+        
         :root {
-            --ibr-blue: #4381cb; /* Azul escuro do logo */
-            --ibr-green: #00a99d; /* Verde dos detalhes */
+            --ibr-blue: #4381cb; 
+            --ibr-green: #00a99d; 
         }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
     <div class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl flex flex-col h-[90vh] relative">
-        <!-- Indicador de "Ouvindo" -->
+        
         <div id="listening-indicator">Ouvindo...</div>
 
-        <!-- Cabeçalho - Usando o azul do IBR -->
+        
         <div class="bg-sky-800 text-white p-4 rounded-t-2xl shadow-md flex justify-between items-center">
             <div class="flex items-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/1626/1626629.png" onerror="this.onerror=null;this.src='https://placehold.co/48x48/ffffff/003d73?text=IBR';" alt="Avatar da Dona Irba" class="w-12 h-12 rounded-full mr-4 border-2 border-white/50">
@@ -58,32 +58,32 @@
             </div>
             <div class="flex items-center space-x-2">
                 <span class="text-xs">Online</span>
-                <!-- Usando o verde do IBR para o status online -->
+                
                 <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
         </div>
 
-        <!-- Corpo do Chat -->
+        
         <div id="chat-body" class="flex-1 p-6 space-y-4 overflow-y-auto chat-container">
-            <!-- As mensagens do chat serão inseridas aqui -->
+            
         </div>
 
-        <!-- Área de Opções Rápidas -->
+        
         <div id="options-area" class="p-4 border-t border-gray-200">
-            <!-- Opções iniciais ou de acessibilidade aparecerão aqui -->
+            
         </div>
 
-        <!-- Input do Usuário -->
+       
         <div class="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
             <div class="flex items-center space-x-2">
-                <!-- Anel de foco azul -->
+                
                 <input type="text" id="user-input" class="flex-1 w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-600" placeholder="Digite sua mensagem...">
                 <button id="mic-btn" class="bg-gray-200 text-gray-600 rounded-full p-3 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17.3 11c-.28 0-.5.22-.5.5v2.5c0 2.48-2.02 4.5-4.5 4.5S7.8 16.48 7.8 14v-2.5c0-.28-.22-.5-.5-.5s-.5.22-.5.5V14c0 3.03 2.47 5.5 5.5 5.5s5.5-2.47 5.5-5.5v-2.5c0-.28-.22-.5-.5-.5z"/>
                     </svg>
                 </button>
-                <!-- Botão de envio azul -->
+                
                 <button id="send-btn" class="bg-sky-800 text-white rounded-full p-3 hover:bg-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -94,7 +94,7 @@
     </div>
 
 <script>
-    // --- ELEMENTOS DO DOM ---
+    
     const chatBody = document.getElementById('chat-body');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
@@ -102,14 +102,14 @@
     const optionsArea = document.getElementById('options-area');
     const listeningIndicator = document.getElementById('listening-indicator');
 
-    // --- CONFIGURAÇÕES GLOBAIS ---
+    
     let conversationState = 'initial';
     let patientData = {};
-    let isAudioEnabled = true; // Áudio ativado por padrão
+    let isAudioEnabled = true; 
     let selectedVoice = null;
-    let fieldToAlter = ''; // Variável para armazenar qual campo está sendo alterado
+    let fieldToAlter = ''; 
 
-    // --- TRADUÇÕES (Removida a opção de idioma, mantido apenas pt-BR) ---
+    
     const translations = {
         'pt-BR': {
             'language_prompt': 'Olá! Eu sou a Dona Irba, sua assistente virtual. Para uma melhor acessibilidade, as minhas respostas serão lidas em voz alta.',
@@ -194,12 +194,7 @@
         }
     };
 
-    /**
-     * Retrieves the translated text for a given key in the current language.
-     * @param {string} key - The key for the translation.
-     * @param {any} [data] - Optional data to pass to translation function if it's a function.
-     * @returns {string} The translated text.
-     */
+    
     function getTranslatedText(key, data = null) {
         const text = translations['pt-BR'][key];
         if (typeof text === 'function') {
@@ -208,7 +203,7 @@
         return text || `[Missing translation for ${key}]`;
     }
 
-    // --- LÓGICA DE SÍNTESE DE VOZ (LEITOR) ---
+    
     const synth = window.speechSynthesis;
     
     function loadAndSetVoice() {
@@ -225,11 +220,7 @@
     }
     loadAndSetVoice();
 
-    /**
-     * Reproduz o texto em voz alta usando a API de Síntese de Voz.
-     * Inclui lógica para aguardar o carregamento da voz, se necessário.
-     * @param {string} text - O texto a ser lido.
-     */
+    
     function speak(text) {
         if (!synth) {
             console.error("API de Síntese de Voz não suportada.");
@@ -273,7 +264,7 @@
         synth.speak(utterance);
     }
 
-    // --- LÓGICA DE RECONHECIMENTO DE VOZ (MICROFONE) ---
+    
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     if (SpeechRecognition) {
@@ -290,24 +281,13 @@
         micBtn.style.display = 'none';
     }
     
-    // --- LÓGICA DO CHATBOT ---
-
-    /**
-     * Função auxiliar para formatar uma string de números para leitura dígito a dígito.
-     * Ex: "12345" -> "um, dois, três, quatro, cinco"
-     * @param {string} numberString - A string de números a ser formatada.
-     * @returns {string} A string formatada para leitura dígito a dígito.
-     */
+    
     function formatNumberForSpeech(numberString) {
         // Remove qualquer caractere não numérico e adiciona vírgulas para pausas na fala
         return String(numberString).replace(/\D/g, '').split('').join(', ');
     }
 
-    /**
-     * Envia uma mensagem do bot, com opção de leitura em voz alta.
-     * @param {string} text - O texto da mensagem do bot.
-     * @param {boolean} [forceSpeak=false] - Força a fala, ignorando a configuração global.
-     */
+    
     function sendBotMessage(text, forceSpeak = false) {
         addMessage(text, 'bot');
         if (isAudioEnabled || forceSpeak) {
@@ -315,11 +295,7 @@
         }
     }
 
-    /**
-     * Adiciona uma mensagem (balão) na tela do chat.
-     * @param {string} text - O texto da mensagem.
-     * @param {string} sender - 'bot' ou 'user'.
-     */
+    
     function addMessage(text, sender) {
         const messageElement = document.createElement('div');
         
@@ -345,7 +321,7 @@
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    /** Adiciona botões de resposta rápida. */
+    
     function showQuickReplies(options) {
         optionsArea.innerHTML = '';
         const container = document.createElement('div');
@@ -360,7 +336,7 @@
         optionsArea.appendChild(container);
     }
 
-    /** Adapts the greeting based on the user's age. */
+    
     function getAgeAdaptedGreeting(age) {
         if (age <= 12) {
             return getTranslatedText('age_child_greeting');
@@ -374,7 +350,7 @@
         }
     }
 
-    /** Helper function for input validation and state transition. */
+    
     function validateAndTransition(input, validationRegex, errorKey, nextState, successCallback) {
         if (!validationRegex.test(input)) {
             sendBotMessage(getTranslatedText(errorKey));
@@ -386,7 +362,7 @@
         return true;
     }
 
-    /** Processa a entrada do usuário e gera a resposta do bot. */
+    
     function processBotResponse(input) {
         const lowerInput = input.toLowerCase();
         const handleUnknownInput = () => setTimeout(() => { sendBotMessage(getTranslatedText('unknown_input')); showInitialOptions(); }, 1000);
@@ -733,7 +709,7 @@
                 }
 
                 if (isValid) {
-                    patientData[fieldToAlter] = processedInput; // Usa o input processado
+                    patientData[fieldToAlter] = processedInput; 
                     sendBotMessage(getTranslatedText('alter_success_message', getTranslatedText('field_alter_options')[fieldToAlter]));
                     conversationState = 'awaiting_alter_choice';
                     setTimeout(() => {
@@ -756,7 +732,7 @@
         }
     }
 
-    /** Manipula a entrada do usuário (texto, voz ou botão). */
+    
     function handleUserInput(forcedInput) {
         const text = forcedInput || userInput.value.trim();
         if (!text) return;
@@ -771,7 +747,7 @@
         }, 300);
     }
     
-    /** Inicia a conversa. */
+    
     function startConversation() {
         conversationState = 'audio_preference';
         setTimeout(() => {
@@ -783,13 +759,13 @@
         }, 1000);
     }
     
-    /** Mostra as opções iniciais do menu principal. */
+    
     function showInitialOptions() {
         showQuickReplies(getTranslatedText('initial_options'));
         userInput.placeholder = "Digite sua mensagem...";
     }
 
-    /** Configura o botão de reiniciar atendimento. */
+    
     function setupRestartButton() {
         const restartBtn = document.querySelector('.quick-reply-btn');
         if (restartBtn && restartBtn.textContent === 'Reiniciar Atendimento') {
@@ -804,7 +780,7 @@
         }
     }
 
-    // --- EVENT LISTENERS ---
+    
     sendBtn.addEventListener('click', () => handleUserInput());
     userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUserInput(); });
     micBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
